@@ -1,4 +1,7 @@
 import { TextStyle, TextStyleWhiteSpace } from './TextStyle';
+import GraphemeSplitter from 'grapheme-splitter';
+
+const splitter = new GraphemeSplitter();
 
 interface IFontMetrics {
     ascent: number;
@@ -263,14 +266,16 @@ export class TextMetrics
                     // loop the characters
                     for (let j = 0; j < characters.length; j++)
                     {
+                        //  could be a single char(for example, 's'), or grapheme (for example, 🙂)
                         let char = characters[j];
 
                         let k = 1;
-                        // we are not at the end of the token
 
+                        // we are not at the end of the token
                         while (characters[j + k])
                         {
                             const nextChar = characters[j + k];
+                            // FIXME: already a complete grapheme, for example, 🙂
                             const lastChar = char[char.length - 1];
 
                             // should not split chars
@@ -286,8 +291,8 @@ export class TextMetrics
 
                             k++;
                         }
-
-                        j += char.length - 1;
+                        // FIXME:
+                        // j += char.length - 1;
 
                         const characterWidth = TextMetrics.getFromCache(char, letterSpacing, cache, context);
 
@@ -393,7 +398,9 @@ export class TextMetrics
 
         if (typeof width !== 'number')
         {
-            const spacing = ((key.length) * letterSpacing);
+            // FIXME: key might be grapheme
+            // const spacing = ((key.length) * letterSpacing);
+            const spacing = splitter.countGraphemes(key) * letterSpacing;
 
             width = context.measureText(key).width + spacing;
             cache[key] = width;
@@ -505,10 +512,12 @@ export class TextMetrics
             return tokens;
         }
 
-        for (let i = 0; i < text.length; i++)
+        const texts = splitter.splitGraphemes(text);
+
+        for (let i = 0; i < texts.length; i++)
         {
-            const char = text[i];
-            const nextChar = text[i + 1];
+            const char = texts[i];
+            const nextChar = texts[i + 1];
 
             if (TextMetrics.isBreakingSpace(char, nextChar) || TextMetrics.isNewline(char))
             {
@@ -587,7 +596,8 @@ export class TextMetrics
      */
     static wordWrapSplit(token: string): string[]
     {
-        return token.split('');
+        return splitter.splitGraphemes(token);
+        // return token.split('');
     }
 
     /**

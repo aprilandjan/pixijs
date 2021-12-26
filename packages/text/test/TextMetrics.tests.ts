@@ -710,4 +710,22 @@ describe('TextMetrics', function ()
             expect(metrics.lines[1]).to.equal('9999------');
         });
     });
+
+    // https://pixijs.io/pixi-text-style/#%7B%22style%22%3A%7B%22breakWords%22%3Atrue%2C%22fontSize%22%3A20%2C%22wordWrap%22%3Atrue%7D%2C%22text%22%3A%22%F0%9F%99%82%F0%9F%99%82%F0%9F%99%82%F0%9F%99%82%22%7D
+    describe('wordWrap with emojis', function ()
+    {
+        it('should correctly wrap with emojis', () => {
+            const text = '🙂🙂🙂🙂';
+            const style = new TextStyle({
+                fontSize: 20,
+                breakWords: true,
+                wordWrap: true,
+                wordWrapWidth: 100
+            });
+            const metrics = TextMetrics.measureText(text, style);
+
+            expect(metrics.lines[0]).to.equal('🙂🙂🙂');
+            expect(metrics.lines[1]).to.equal('🙂');
+        });
+    });
 });

@@ -30,5 +30,8 @@
     "@pixi/settings": "6.2.1",
     "@pixi/sprite": "6.2.1",
     "@pixi/utils": "6.2.1"
+  },
+  "dependencies": {
+    "grapheme-splitter": "^1.0.4"
   }
 }
